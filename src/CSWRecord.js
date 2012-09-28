@@ -115,6 +115,18 @@ var  CSW2ExtConvert = function (v,record){
 			}
 			return dc;
 		//Other fields, give the right array or single value
+		}else if(this.name=="bounds"){
+			if(record["bounds"]) return record["bounds"];
+			if(record["BoundingBox"]){
+				var arr = record["BoundingBox"];
+				for(x in arr){
+					if(arr[x].bounds) return arr[x].bounds;
+				}
+				
+				return ;
+			}
+			return undefined;
+		
 		}else if(record[this.name]){
 				if(record[this.name] instanceof Array){
 					
@@ -167,14 +179,15 @@ var CSWRecord = Ext.data.Record.create([
 	{name: 'language', 		convert:  CSW2ExtConvert },
 	{name: 'relation', 		convert:  CSW2ExtConvert },
 	{name: 'coverage', 		convert:  CSW2ExtConvert },
-	{name: 'bounds'									 },
+	{name: 'bounds',			convert:  CSW2ExtConvert },	
 	{name: 'rights', 		convert:  CSW2ExtConvert },
 	{name: 'projection'								 },
 	{name: 'thumbnail'	,	convert:  CSW2ExtConvert },
 	{name: 'map',			convert:  CSW2ExtConvert },
 	{name: 'dc',			convert:  CSW2ExtConvert },
 	{name: 'absolutePath'							 },
-	{name: 'downloads'	,	convert:  CSW2ExtConvert }
+	{name: 'downloads'	,	convert:  CSW2ExtConvert },
+	{name: 'metadataWebPageUrl'}
 	
 
 ]);
