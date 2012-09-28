@@ -257,10 +257,15 @@ CSWCatalogChooser = Ext.extend(Ext.form.ComboBox, {
 			data: catalogs,
 			autoLoad: true,
 			remoteSort: false,
-			fields: ["name", "url", "description"],
+			fields: ["name", "url", "description","metaDataOptions"],
 			sortInfo: {field: "name", direction: "ASC"}            	
 		});
         this.addEvents(this.events);
+	},
+	getSelectedIndex: function() {
+		var v = this.getValue();
+		var r = this.findRecord(this.valueField || this.displayField, v);
+		return(this.store.indexOf(r));
 	}
 });
 

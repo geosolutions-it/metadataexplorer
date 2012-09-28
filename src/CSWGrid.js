@@ -271,7 +271,7 @@ CSWGrid = Ext.extend(Ext.grid.GridPanel, {
 						Ext.get(id).on('click', function(e){
 							//open GN inteface related to this resource
 							if(values.identifier){
-								window.open(values.absolutePath.substring(0,values.absolutePath.length-3)+"metadata.show?uuid="+values.identifier);
+							window.open(values.metadataWebPageUrl);
 							//Shows all DC values
 							}else{
 								//TODO create dc visual
@@ -511,11 +511,33 @@ CSWGrid = Ext.extend(Ext.grid.GridPanel, {
 		
 		//used for get the base url for thumnails and geonetwork resource, NEEDED if using x-domain proxy
 		this.store.on("load",function (store,records,options){
-			var url=store.proxy.currentCatalog;
+			var catalogChooser = this.findParentByType("csw").searchTool.catalogChooser;
+			var configOptions = catalogChooser.getStore().getAt(catalogChooser.getSelectedIndex());
 			
+			var url=store.proxy.currentCatalog.split('?')[0];
+			var catalogOpt = store.proxy.catalogOptions;
+			var metaDataOptions = configOptions.get("metaDataOptions") || {};
 			for(var i=0;i<records.length;i++){
 				var thumb;
 				records[i].set('absolutePath',url);
+				var identifier = records[i].get("identifier");
+				//default geonetwork url is the url of csw without 
+				var metadataBase = metaDataOptions.base ? metaDataOptions.base : url.substring(0,url.length-3) +"metadata.show";
+				var metadataIdParam = metaDataOptions.idParam ? metaDataOptions.idParam : "uuid";
+				var uuid = identifier;
+				//for some catalogs the identifier must be splitted
+				if("idIndex" in metaDataOptions){
+					var uuid = identifier[metaDataOptions.idIndex];
+				}
+				var queryString = metadataIdParam + "=" + uuid;
+				if (metaDataOptions.additionalParams){
+					for(var parName in metaDataOptions.additionalParams){
+						queryString += "&"+parName+"="+metaDataOptions.additionalParams[parName];
+					}
+				}
+				var metadataWebPageUrl = metadataBase + "?"+queryString;
+				records[i].set("metadataWebPageUrl",metadataWebPageUrl);
+				//metadataUrl = values.absolutePath.substring(0,values.absolutePath.length-3+"metadata.show?uuid="+values.identifier);
 				//set thumbnail to absolute path
 				if( thumb = records[i].get('thumbnail') ){
 					var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
